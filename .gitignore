@@ -1,0 +1,12 @@
+# Mounted legacy projects are local machine references only.
+projects/*
+!projects/README.md
+
+# PM skills are recreated from the source repo via link-pm-skills.ps1.
+.agents/skills/*
+!.agents/skills/mount-legacy-project/
+!.agents/skills/mount-legacy-project/**
+
+# Common local clutter
+Thumbs.db
+.DS_Store

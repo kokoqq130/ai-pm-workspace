@@ -1,0 +1,4 @@
+interface:
+  display_name: "挂载旧项目"
+  short_description: "将旧项目以目录联接挂到当前工作区的 projects 中"
+  default_prompt: "Use $mount-legacy-project to mount an existing project into this workspace from a source path."

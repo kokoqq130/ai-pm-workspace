@@ -1,0 +1,130 @@
+{
+  "version": 1,
+  "skills": {
+    "business-health-diagnostic": {
+      "source": ".\\tools\\Product-Manager-Skills",
+      "sourceType": "git",
+      "computedHash": "ed43a97fe705eb8311e7d2c113801ad379bb1b2f667ec8e76f2c913bc1e62cbd"
+    },
+    "customer-journey-map": {
+      "source": ".\\tools\\Product-Manager-Skills",
+      "sourceType": "git",
+      "computedHash": "951b0c75e85ef46e0b2958a010b099afe36b9634c896bc8381aa63bb6c1ec826"
+    },
+    "discovery-interview-prep": {
+      "source": ".\\tools\\Product-Manager-Skills",
+      "sourceType": "git",
+      "computedHash": "19c6df1936d385940800a5944162e31e12f0eab3e90015c14448be1548a05686"
+    },
+    "discovery-process": {
+      "source": ".\\tools\\Product-Manager-Skills",
+      "sourceType": "git",
+      "computedHash": "1db1d23099231123a479df8f9a58fc5f4a7ed6a57ee7ebbf1653843303518ede"
+    },
+    "epic-breakdown-advisor": {
+      "source": ".\\tools\\Product-Manager-Skills",
+      "sourceType": "git",
+      "computedHash": "027249af486da4604ba3c3f2dad27474a181100cabb73b7e8fafb48699324ae6"
+    },
+    "epic-hypothesis": {
+      "source": ".\\tools\\Product-Manager-Skills",
+      "sourceType": "git",
+      "computedHash": "30dedd28e040872f922fbc6958ca3045dbc57d7b58ade86414970702ab570c9b"
+    },
+    "feature-investment-advisor": {
+      "source": ".\\tools\\Product-Manager-Skills",
+      "sourceType": "git",
+      "computedHash": "b269448c9ee3029680f98444a8b74016a8bff50adc073b23d8a3b8920e798d5e"
+    },
+    "finance-metrics-quickref": {
+      "source": ".\\tools\\Product-Manager-Skills",
+      "sourceType": "git",
+      "computedHash": "834cd4ea826af19888def4ee70f401ed7642030a2f7b036399bfd2fe311127d2"
+    },
+    "jobs-to-be-done": {
+      "source": ".\\tools\\Product-Manager-Skills",
+      "sourceType": "git",
+      "computedHash": "8aa88b3fd1044390bd1d094f50d1d14c91587bfd06251239ae8c0754f77ac9d8"
+    },
+    "opportunity-solution-tree": {
+      "source": ".\\tools\\Product-Manager-Skills",
+      "sourceType": "git",
+      "computedHash": "d62f9380e9e1598b724cbb6b907eb57475276e60b472eee442a0e269d97263de"
+    },
+    "pol-probe": {
+      "source": ".\\tools\\Product-Manager-Skills",
+      "sourceType": "git",
+      "computedHash": "3f508b799493a19e812e4b04bdb4e26ba483e9f327c8d25a7965062c5da89b44"
+    },
+    "pol-probe-advisor": {
+      "source": ".\\tools\\Product-Manager-Skills",
+      "sourceType": "git",
+      "computedHash": "08ce1dfeed2c0cd725761c739e9c8b2988d7f44a6022fe5cf3e7edba11248310"
+    },
+    "positioning-workshop": {
+      "source": ".\\tools\\Product-Manager-Skills",
+      "sourceType": "git",
+      "computedHash": "62d80aeb7daacc432cc7d3c038f2d3b2fba4a623e415b082a006bef970b5b50d"
+    },
+    "prd-development": {
+      "source": ".\\tools\\Product-Manager-Skills",
+      "sourceType": "git",
+      "computedHash": "1b7f6de0d407c7ed581ab96fcdd332392f4552ddafa26da5fe29eff863123c7f"
+    },
+    "prioritization-advisor": {
+      "source": ".\\tools\\Product-Manager-Skills",
+      "sourceType": "git",
+      "computedHash": "634c80c52e7cea4eba3c1e4b46bf9db12d6d4c43b0366b72b91bfd434a64139b"
+    },
+    "problem-framing-canvas": {
+      "source": ".\\tools\\Product-Manager-Skills",
+      "sourceType": "git",
+      "computedHash": "436c84b4b3c84abcccc653b9574ca61b6889381351670930df13dfb2b75a89a8"
+    },
+    "problem-statement": {
+      "source": ".\\tools\\Product-Manager-Skills",
+      "sourceType": "git",
+      "computedHash": "07098e48436849689ee2fff83037747e4f84d13d575cd55f834b6e6240af156e"
+    },
+    "product-strategy-session": {
+      "source": ".\\tools\\Product-Manager-Skills",
+      "sourceType": "git",
+      "computedHash": "7b4515881efca051541c136684e936b7bdc03b952fbfc5ab6609f6d346d3dc1b"
+    },
+    "proto-persona": {
+      "source": ".\\tools\\Product-Manager-Skills",
+      "sourceType": "git",
+      "computedHash": "23e2ed06a7dc21d369ce77e6e335d0bd7fd181936421592966f79736df5bf4c2"
+    },
+    "roadmap-planning": {
+      "source": ".\\tools\\Product-Manager-Skills",
+      "sourceType": "git",
+      "computedHash": "c00261ab88f619056d3008cd51563591cdfb2653233f36e80f565895ee77d897"
+    },
+    "saas-economics-efficiency-metrics": {
+      "source": ".\\tools\\Product-Manager-Skills",
+      "sourceType": "git",
+      "computedHash": "d8c9b637b04ca35bb3bcb8d4d769d3076602066f2d9792ddd11685618284ee5f"
+    },
+    "saas-revenue-growth-metrics": {
+      "source": ".\\tools\\Product-Manager-Skills",
+      "sourceType": "git",
+      "computedHash": "0853a0da63113aad7c867fd697b066d4fbfaf33d61f53da15ac299442846d639"
+    },
+    "user-story": {
+      "source": ".\\tools\\Product-Manager-Skills",
+      "sourceType": "git",
+      "computedHash": "9c9c5780c408ac4cd8476facb2332275609650d0b8f8f3148d766f89777ee285"
+    },
+    "user-story-mapping": {
+      "source": ".\\tools\\Product-Manager-Skills",
+      "sourceType": "git",
+      "computedHash": "ba589bb55f9361beb047b562565aa2f878ed5c85b31db0c7c439403d76520926"
+    },
+    "user-story-splitting": {
+      "source": ".\\tools\\Product-Manager-Skills",
+      "sourceType": "git",
+      "computedHash": "40217c8fa4d5eefd90471fa011a256bd6c576e4fb318b83afb97211be399837d"
+    }
+  }
+}

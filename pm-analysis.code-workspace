@@ -1,0 +1,29 @@
+{
+  "folders": [
+    {
+      "name": "requirement-workspace",
+      "path": "."
+    },
+    {
+      "name": "pm-analysis",
+      "path": ".pm-workspace"
+    },
+    {
+      "name": "legacy-projects",
+      "path": "projects"
+    },
+    {
+      "name": "Product-Manager-Skills",
+      "path": "tools/Product-Manager-Skills"
+    }
+  ],
+  "settings": {
+    "explorer.compactFolders": false,
+    "workbench.editor.labelFormat": "medium",
+    "files.exclude": {
+      "**/.git": true,
+      "**/.pm-workspace/scratch": false,
+      "**/node_modules": true
+    }
+  }
+}
