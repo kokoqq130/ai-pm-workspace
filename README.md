@@ -1,5 +1,20 @@
 # AI PM Workspace
 
+## 先执行这个
+
+这个仓库包含 Git 子模块。
+如果你克隆后发现 `tools/Product-Manager-Skills/` 是空的，先执行：
+
+```powershell
+git submodule update --init --recursive
+```
+
+如果你还没克隆仓库，也可以直接用：
+
+```powershell
+git clone --recurse-submodules <仓库地址>
+```
+
 这是一个面向 Codex / AI 的需求分析工作空间，用来做：
 
 - 需求分析与需求澄清
