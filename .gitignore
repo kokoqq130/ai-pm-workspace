@@ -8,5 +8,6 @@ projects/*
 !.agents/skills/mount-legacy-project/**
 
 # Common local clutter
+.idea/
 Thumbs.db
 .DS_Store
