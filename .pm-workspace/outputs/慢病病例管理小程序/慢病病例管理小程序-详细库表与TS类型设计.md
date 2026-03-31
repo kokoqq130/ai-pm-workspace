@@ -88,6 +88,41 @@ Python 的建议角色是：
     -> 可选 Python OCR/AI 服务
 ```
 
+### 1.4 结构化提取策略结论
+
+当前推荐：
+
+- OCR 负责把图片/PDF 转成文本
+- LLM 负责把文本提取成标准化 JSON
+- Node.js 后端负责：
+  - 调 OCR
+  - 调 LLM
+  - 校验 JSON
+  - 持久化数据
+
+不推荐当前首版直接用大量正则表达式作为主解析方案。
+
+原因：
+
+- 医学资料版式差异极大
+- 医院和文档格式不统一
+- 用规则去提取药品、剂量、诊断会快速失控
+
+### 1.5 用户自填 API Key 的策略
+
+如果后续支持用户自填模型 API Key，推荐：
+
+- Key 在设置页录入
+- 前端不直接调用第三方模型
+- 由后端拿 Key 去请求模型服务
+- 仅在用户明确启用后使用
+
+需要额外注意：
+
+- 这意味着部分病历文本会发送到用户选择的第三方模型服务商
+- 必须在隐私政策和授权文案中明确说明
+- 不建议把这项能力作为首版强依赖
+
 ## 2. 推荐类型分层
 
 ## 2.1 基础公共类型
@@ -206,6 +241,10 @@ export interface SummaryPageViewModel {
 - `visit_summaries`
 - `operation_logs`
 
+可选扩展集合：
+
+- `user_ai_provider_settings`
+
 它们的关系可以先理解为：
 
 ```text
@@ -283,6 +322,7 @@ export interface UserRecord {
 |---|---|---|---|---|
 | `_id` | string | 是 | 患者主键 | |
 | `owner_user_id` | string | 是 | 所属用户 ID | 指向 `users._id` |
+| `owner_openid` | string | 是 | 所属用户微信标识 | 便于 CloudBase 安全规则校验 |
 | `name` | string | 是 | 患者姓名或昵称 | 首版建议支持昵称 |
 | `gender` | string | 否 | 性别 | `male` / `female` / `unknown` |
 | `birth_year` | number | 否 | 出生年份 | 不一定要求完整生日 |
@@ -291,6 +331,8 @@ export interface UserRecord {
 | `remark` | string | 否 | 其他备注 | |
 | `created_at` | string | 是 | 创建时间 | |
 | `updated_at` | string | 是 | 更新时间 | |
+| `is_deleted` | boolean | 否 | 是否已软删除 | 默认 `false` |
+| `deleted_at` | string | 否 | 软删除时间 | 未删除为空 |
 
 ### TS 示例
 
@@ -298,6 +340,7 @@ export interface UserRecord {
 export interface PatientRecord {
   _id: string
   owner_user_id: string
+  owner_openid: string
   name: string
   gender?: 'male' | 'female' | 'unknown'
   birth_year?: number
@@ -306,6 +349,8 @@ export interface PatientRecord {
   remark?: string
   created_at: string
   updated_at: string
+  is_deleted?: boolean
+  deleted_at?: string | null
 }
 ```
 
@@ -329,6 +374,7 @@ export interface PatientRecord {
 |---|---|---|---|---|
 | `_id` | string | 是 | 资料主键 | |
 | `patient_id` | string | 是 | 所属患者 ID | 指向 `patients._id` |
+| `owner_openid` | string | 是 | 所属用户微信标识 | 用于数据库安全规则 |
 | `file_path` | string | 是 | 云存储路径 | 原始文件路径 |
 | `file_type` | string | 是 | 文件格式 | 如 `image`、`pdf` |
 | `source_type` | string | 是 | 资料来源 | 首版通常为 `upload` |
@@ -339,11 +385,14 @@ export interface PatientRecord {
 | `department_name` | string | 否 | 科室名称 | |
 | `created_at` | string | 是 | 创建时间 | |
 | `updated_at` | string | 是 | 更新时间 | |
+| `is_deleted` | boolean | 否 | 是否已软删除 | 默认 `false` |
+| `deleted_at` | string | 否 | 软删除时间 | 未删除为空 |
 
 ### 备注
 
 - `documents` 代表“原始资料”
 - 识别后的详细内容不要全部堆在这张表里
+- 推荐增加 `is_deleted` / `deleted_at` 实现软删除
 
 ## 4.4 document_ocr_results
 
@@ -367,12 +416,15 @@ export interface PatientRecord {
 |---|---|---|---|---|
 | `_id` | string | 是 | OCR 结果主键 | |
 | `document_id` | string | 是 | 对应资料 ID | 指向 `documents._id` |
+| `owner_openid` | string | 是 | 所属用户微信标识 | 便于按用户隔离 |
 | `raw_text` | string | 否 | OCR 原始全文文本 | 便于回看和调试 |
 | `structured_json` | object | 否 | 结构化结果 | 诊断、药物、检查等 |
 | `confidence` | number | 否 | 识别置信度 | 可选 |
 | `manual_corrected` | boolean | 是 | 是否被人工修正 | 默认 `false` |
 | `created_at` | string | 是 | 创建时间 | |
 | `updated_at` | string | 是 | 更新时间 | |
+| `is_deleted` | boolean | 否 | 是否已软删除 | 默认 `false` |
+| `deleted_at` | string | 否 | 软删除时间 | 未删除为空 |
 
 ### structured_json 建议结构
 
@@ -396,6 +448,15 @@ export interface StructuredMedicalData {
 }
 ```
 
+### LLM 输出约束建议
+
+建议后端要求模型：
+
+- 只返回 JSON
+- 不要生成解释性文字
+- 不确定的字段返回 `null` 或留空
+- 不允许编造医院、药名、诊断
+
 ## 4.5 timeline_events
 
 ### 用途
@@ -418,17 +479,21 @@ export interface StructuredMedicalData {
 |---|---|---|---|---|
 | `_id` | string | 是 | 事件主键 | |
 | `patient_id` | string | 是 | 所属患者 ID | |
+| `owner_openid` | string | 是 | 所属用户微信标识 | 便于安全规则控制 |
 | `event_date` | string | 是 | 事件日期 | |
 | `event_type` | string | 是 | 事件类型 | `visit` / `exam` / `medication` / `hospitalization` / `surgery` / `manual_note` |
 | `title` | string | 是 | 事件标题 | 如“门诊复诊” |
 | `summary` | string | 否 | 简短描述 | |
 | `source_document_id` | string | 否 | 来源资料 ID | 可为空，手工补录时可能没有 |
 | `created_at` | string | 是 | 创建时间 | |
+| `is_deleted` | boolean | 否 | 是否已软删除 | 默认 `false` |
+| `deleted_at` | string | 否 | 软删除时间 | 未删除为空 |
 
 ### 备注
 
 - 时间线是“给人看”的摘要层
 - 不要把太多原始 OCR 细节直接塞进来
+- 推荐增加 `is_deleted` / `deleted_at` 实现软删除
 
 ## 4.6 medication_records
 
@@ -446,6 +511,7 @@ export interface StructuredMedicalData {
 |---|---|---|---|---|
 | `_id` | string | 是 | 用药记录主键 | |
 | `patient_id` | string | 是 | 所属患者 ID | |
+| `owner_openid` | string | 是 | 所属用户微信标识 | |
 | `drug_name` | string | 是 | 药品名称 | |
 | `dosage` | string | 否 | 剂量 | 如 5mg |
 | `frequency` | string | 否 | 频次 | 如 每日一次 |
@@ -455,6 +521,8 @@ export interface StructuredMedicalData {
 | `source_document_id` | string | 否 | 来源资料 ID | |
 | `created_at` | string | 是 | 创建时间 | |
 | `updated_at` | string | 是 | 更新时间 | |
+| `is_deleted` | boolean | 否 | 是否已软删除 | 默认 `false` |
+| `deleted_at` | string | 否 | 软删除时间 | 未删除为空 |
 
 ### 备注
 
@@ -481,13 +549,55 @@ export interface StructuredMedicalData {
 |---|---|---|---|---|
 | `_id` | string | 是 | 摘要主键 | |
 | `patient_id` | string | 是 | 所属患者 ID | |
+| `owner_openid` | string | 是 | 所属用户微信标识 | |
 | `status` | string | 是 | 摘要状态 | `draft` / `generated` / `archived` |
 | `summary_text` | string | 是 | 摘要正文 | 供复制使用 |
 | `source_version` | string | 否 | 来源数据版本标识 | 可选 |
 | `created_at` | string | 是 | 创建时间 | |
 | `updated_at` | string | 是 | 更新时间 | |
+| `is_deleted` | boolean | 否 | 是否已软删除 | 默认 `false` |
+| `deleted_at` | string | 否 | 软删除时间 | 未删除为空 |
 
-## 4.8 operation_logs
+## 4.8 user_ai_provider_settings
+
+### 用途
+
+存储用户是否启用自定义模型服务，以及对应的安全配置。
+
+### 为什么建议单独建表
+
+因为这类配置既不是普通业务数据，也不应该直接混在 `users` 表里。
+
+单独拆表更利于：
+
+- 单独做加密与脱敏
+- 单独做权限控制
+- 后续支持多个 provider
+
+### 字段说明
+
+| 字段名 | 类型 | 必填 | 含义 | 备注 |
+|---|---|---|---|---|
+| `_id` | string | 是 | 配置主键 | |
+| `owner_openid` | string | 是 | 所属用户微信标识 | 严格按本人访问 |
+| `provider_code` | string | 是 | 服务商标识 | 如 `deepseek`、`kimi`、`openai_compatible` |
+| `base_url` | string | 否 | 自定义接口地址 | 兼容 OpenAI 风格网关时可填 |
+| `model_name` | string | 是 | 模型名称 | |
+| `api_key_ciphertext` | string | 是 | 加密后的 API Key | 仅服务端可解密 |
+| `api_key_last4` | string | 否 | Key 后 4 位 | 前端仅展示掩码 |
+| `enabled_for_extraction` | boolean | 是 | 是否用于 OCR 结构化提取 | |
+| `enabled_for_qa` | boolean | 是 | 是否用于后续资料问答 | 首版可固定 `false` |
+| `consent_version` | string | 否 | 用户确认的授权版本 | 用于留痕 |
+| `created_at` | string | 是 | 创建时间 | |
+| `updated_at` | string | 是 | 更新时间 | |
+
+### 备注
+
+- 前端不应拿到 `api_key_ciphertext`
+- 建议由云函数用环境变量中的服务端密钥进行加密/解密
+- 首版如嫌复杂，也可以先不持久化，只支持“本次会话临时使用”
+
+## 4.9 operation_logs
 
 ### 用途
 
@@ -507,6 +617,7 @@ export interface StructuredMedicalData {
 |---|---|---|---|---|
 | `_id` | string | 是 | 日志主键 | |
 | `user_id` | string | 是 | 操作用户 ID | |
+| `owner_openid` | string | 是 | 所属用户微信标识 | |
 | `patient_id` | string | 否 | 关联患者 ID | |
 | `action` | string | 是 | 操作类型 | 如 `login`、`upload_document`、`delete_document` |
 | `target_id` | string | 否 | 被操作对象 ID | |
@@ -553,10 +664,14 @@ export interface StructuredMedicalData {
 
 - `users.openid`
 - `patients.owner_user_id`
+- `patients.owner_openid`
 - `documents.patient_id + created_at`
+- `documents.owner_openid + created_at`
 - `document_ocr_results.document_id`
+- `timeline_events.owner_openid + event_date`
 - `timeline_events.patient_id + event_date`
 - `medication_records.patient_id + start_date`
+- `medication_records.owner_openid + start_date`
 - `visit_summaries.patient_id + created_at`
 
 ## 7. 删除联动规则
@@ -571,6 +686,11 @@ export interface StructuredMedicalData {
 - `medication_records` 中引用该 `document_id` 的记录
 - 必要时重建最新摘要
 
+推荐实现：
+
+- 先软删除
+- 后续由清理任务做物理删除
+
 ### 删除患者
 
 应联动处理：
@@ -582,7 +702,23 @@ export interface StructuredMedicalData {
 - `medication_records`
 - `visit_summaries`
 
-## 8. 你现在最适合的做法
+## 8. CloudBase 安全规则建议
+
+由于这是高敏感数据，推荐每张核心业务集合都带 `owner_openid` 字段。
+
+推荐原则：
+
+- 前端不直接决定是否有权限
+- 云函数必须重新按当前登录身份鉴权
+- 数据库安全规则也应限制只允许访问自己的记录
+
+示意原则：
+
+```text
+allow read, write: if auth != null && auth.openid == doc.owner_openid
+```
+
+## 9. 你现在最适合的做法
 
 我对你当前阶段的建议是：
 
