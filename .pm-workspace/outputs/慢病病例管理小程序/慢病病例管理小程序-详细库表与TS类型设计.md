@@ -586,7 +586,6 @@ export interface StructuredMedicalData {
 | `api_key_ciphertext` | string | 是 | 加密后的 API Key | 仅服务端可解密 |
 | `api_key_last4` | string | 否 | Key 后 4 位 | 前端仅展示掩码 |
 | `enabled_for_extraction` | boolean | 是 | 是否用于 OCR 结构化提取 | |
-| `enabled_for_qa` | boolean | 是 | 是否用于后续资料问答 | 首版可固定 `false` |
 | `consent_version` | string | 否 | 用户确认的授权版本 | 用于留痕 |
 | `created_at` | string | 是 | 创建时间 | |
 | `updated_at` | string | 是 | 更新时间 | |
@@ -595,7 +594,7 @@ export interface StructuredMedicalData {
 
 - 前端不应拿到 `api_key_ciphertext`
 - 建议由云函数用环境变量中的服务端密钥进行加密/解密
-- 首版如嫌复杂，也可以先不持久化，只支持“本次会话临时使用”
+- 首版按持久化保存配置设计，更符合后续开关控制、留痕和重复使用需求
 
 ## 4.9 operation_logs
 
